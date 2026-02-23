@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
-import type { User } from '@supabase/supabase-js';
 
-interface Profile {
+export interface Profile {
   id: string;
   email: string;
   full_name: string;
@@ -32,21 +32,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
-      if (error) { console.error('Profile fetch error:', error); setProfile(null); }
-      else setProfile(data);
-    } catch (err) { console.error('Profile fetch exception:', err); setProfile(null); }
+      if (error) {
+        console.error('Profile fetch error:', error.message);
+        setProfile(null);
+      } else {
+        setProfile(data);
+      }
+    } catch (err) {
+      console.error('Profile fetch exception:', err);
+      setProfile(null);
+    }
   };
 
   useEffect(() => {
     let mounted = true;
+
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!mounted) return;
       const currentUser = session?.user ?? null;
       setUser(currentUser);
-      if (currentUser) await fetchProfile(currentUser.id);
+      if (currentUser) {
+        await fetchProfile(currentUser.id);
+      }
       setLoading(false);
+    }).catch(() => {
+      if (mounted) setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return;
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       if (currentUser) {
