@@ -12,6 +12,9 @@ import AdminSettings from './pages/admin/Settings';
 import ManagerDashboard from './pages/manager/Dashboard';
 import EmployeeDashboard from './pages/employee/Dashboard';
 import ExpertDashboard from './pages/expert/Dashboard';
+import ExpertSessions from './pages/expert/Sessions';
+import ExpertClients from './pages/expert/Clients';
+import ExpertDietPlans from './pages/expert/DietPlans';
 import Messages from './pages/shared/Messages';
 
 function ProtectedRoute({ children, roles }: { children: React.ReactNode; roles?: string[] }) {
@@ -55,12 +58,15 @@ export default function App() {
             <Route index element={<ManagerDashboard />} />
             <Route path="messages" element={<Messages />} />
           </Route>
-          <Route path="/employee" element={<ProtectedRoute roles={['employee']}><Layout /></ProtectedRoute>}>
-            <Route index element={<EmployeeDashboard />} />
-            <Route path="messages" element={<Messages />} />
-          </Route>
           <Route path="/expert" element={<ProtectedRoute roles={['expert']}><Layout /></ProtectedRoute>}>
             <Route index element={<ExpertDashboard />} />
+            <Route path="sessions" element={<ExpertSessions />} />
+            <Route path="clients" element={<ExpertClients />} />
+            <Route path="diet-plans" element={<ExpertDietPlans />} />
+            <Route path="messages" element={<Messages />} />
+          </Route>
+          <Route path="/employee" element={<ProtectedRoute roles={['employee']}><Layout /></ProtectedRoute>}>
+            <Route index element={<EmployeeDashboard />} />
             <Route path="messages" element={<Messages />} />
           </Route>
         </Routes>
