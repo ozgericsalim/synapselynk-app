@@ -12,24 +12,30 @@ export default function Login() {
   const { user, profile } = useAuth();
 
   useEffect(() => {
-    const testProfile = async () => {
+    const test = async () => {
       if (user && !profile) {
         try {
-          setDebug('Fetching profile for ' + user.id);
-          const { data, error: err } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-          if (err) {
-            setDebug('ERR: ' + err.message + ' code:' + err.code);
-          } else {
-            setDebug('OK: ' + JSON.stringify(data));
-          }
+          setDebug('Testing raw fetch...');
+          const key = import.meta.env.VITE_SUPABASE_ANON_KEY || 'no-key';
+          const baseUrl = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+            ? window.location.origin + '/supabase'
+            : import.meta.env.VITE_SUPABASE_URL || '';
+          const url = baseUrl + '/rest/v1/profiles?select=*&id=eq.' + user.id;
+          setDebug('Fetching: ' + url);
+          const resp = await Promise.race([
+            fetch(url, { headers: { 'apikey': key, 'Authorization': 'Bearer ' + key } }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout 5s')), 5000))
+          ]) as Response;
+          const text = await resp.text();
+          setDebug('Response: ' + resp.status + ' ' + text.substring(0, 200));
         } catch (ex: any) {
-          setDebug('EXCEPTION: ' + ex.message);
+          setDebug('FETCH ERR: ' + ex.message);
         }
       } else {
         setDebug('user=' + (user ? 'yes' : 'no') + ' profile=' + (profile ? 'yes' : 'no'));
       }
     };
-    testProfile();
+    test();
   }, [user, profile]);
 
   if (user && profile) return <Navigate to="/" replace />;
