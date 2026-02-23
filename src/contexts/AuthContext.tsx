@@ -26,12 +26,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) console.error('Profile fetch error:', error);
       if (data) setProfile(data as Profile);
     };
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
-      setLoading(false);
+    useEffect(() => {
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
+        setUser(session?.user ?? null);
+        if (session?.user) await fetchProfile(session.user.id);
+        setLoading(false);
+      });
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
