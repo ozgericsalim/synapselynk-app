@@ -4,9 +4,14 @@ import Layout from './components/layout/Layout';
 import Login from './pages/auth/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import Companies from './pages/admin/Companies';
+import AdminUsers from './pages/admin/Users';
+import AdminExperts from './pages/admin/Experts';
+import AdminTests from './pages/admin/Tests';
+import AdminTrainings from './pages/admin/Trainings';
 import ManagerDashboard from './pages/manager/Dashboard';
 import EmployeeDashboard from './pages/employee/Dashboard';
 import ExpertDashboard from './pages/expert/Dashboard';
+import Messages from './pages/shared/Messages';
 
 function ProtectedRoute({ children, roles }: { children: React.ReactNode; roles?: string[] }) {
   const { user, profile, loading } = useAuth();
@@ -38,15 +43,23 @@ export default function App() {
           <Route path="/admin" element={<ProtectedRoute roles={['admin']}><Layout /></ProtectedRoute>}>
             <Route index element={<AdminDashboard />} />
             <Route path="companies" element={<Companies />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="experts" element={<AdminExperts />} />
+            <Route path="tests" element={<AdminTests />} />
+            <Route path="trainings" element={<AdminTrainings />} />
+            <Route path="messages" element={<Messages />} />
           </Route>
           <Route path="/manager" element={<ProtectedRoute roles={['manager']}><Layout /></ProtectedRoute>}>
             <Route index element={<ManagerDashboard />} />
+            <Route path="messages" element={<Messages />} />
           </Route>
           <Route path="/employee" element={<ProtectedRoute roles={['employee']}><Layout /></ProtectedRoute>}>
             <Route index element={<EmployeeDashboard />} />
+            <Route path="messages" element={<Messages />} />
           </Route>
           <Route path="/expert" element={<ProtectedRoute roles={['expert']}><Layout /></ProtectedRoute>}>
             <Route index element={<ExpertDashboard />} />
+            <Route path="messages" element={<Messages />} />
           </Route>
         </Routes>
       </AuthProvider>
