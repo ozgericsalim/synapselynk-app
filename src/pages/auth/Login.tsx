@@ -17,26 +17,8 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      const url = import.meta.env.VITE_SUPABASE_URL;
-      const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      const resp = await fetch(url + '/auth/v1/token?grant_type=password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': key },
-        body: JSON.stringify({ email, password })
-      });
-      const data = await resp.json();
-      if (data.error || data.error_description) {
-        throw new Error(data.error_description || data.msg || 'Auth error');
-      }
-      if (data.access_token) {
-        const { error: setErr } = await supabase.auth.setSession({
-          access_token: data.access_token,
-          refresh_token: data.refresh_token
-        });
-        if (setErr) throw setErr;
-      } else {
-        throw new Error('No access token: ' + JSON.stringify(data).substring(0, 100));
-      }
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
     } catch (err: any) {
       setError(err.message || 'Giris basarisiz');
     } finally {

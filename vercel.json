@@ -1,1 +1,6 @@
-{"rewrites":[{"source":"/((?!assets/).*)","destination":"/index.html"}]}
+{
+  "rewrites": [
+    { "source": "/supabase/:path*", "destination": "https://idvkoiprzyekzhfwhlgj.supabase.co/:path*" },
+    { "source": "/((?!assets|supabase).*)", "destination": "/index.html" }
+  ]
+}
