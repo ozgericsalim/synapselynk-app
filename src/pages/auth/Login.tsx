@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
@@ -11,24 +11,32 @@ export default function Login() {
   const [debug, setDebug] = useState('');
   const { user, profile } = useAuth();
 
+  useEffect(() => {
+    if (user && !profile) {
+      setDebug('User exists but no profile. Testing fetch...');
+      supabase.from('profiles').select('*').eq('id', user.id).single()
+        .then(({ data, error: err }) => {
+          if (err) setDebug('Profile fetch error: ' + err.message + ' | code: ' + err.code);
+          else setDebug('Profile fetched OK: ' + JSON.stringify(data));
+        })
+        .catch(e => setDebug('Profile fetch exception: ' + e.message));
+    }
+  }, [user, profile]);
+
   if (user && profile) return <Navigate to="/" replace />;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    setDebug('Starting login...');
     try {
-      setDebug('Calling signInWithPassword...');
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      setDebug('signIn returned: ' + (error ? error.message : 'success'));
       if (error) throw error;
+      setDebug('Login OK, waiting for profile...');
     } catch (err: any) {
       setError(err.message || 'Giris basarisiz');
-      setDebug('Error: ' + err.message);
     } finally {
       setLoading(false);
-      setDebug(prev => prev + ' | finally reached');
     }
   };
 
@@ -39,18 +47,18 @@ export default function Login() {
         <p className="text-gray-400 text-center mb-8">Kurumsal Calisan Refahi Platformu</p>
         <div className="bg-gray-800 rounded-xl p-8 shadow-lg border border-gray-700">
           <h2 className="text-xl font-bold text-white mb-6">Giris Yap</h2>
-          {debug && <div className="bg-blue-500/20 border border-blue-500 text-blue-300 px-4 py-2 rounded mb-4 text-xs">{debug}</div>}
+          {debug && <div className="bg-blue-500/20 border border-blue-500 text-blue-300 px-4 py-2 rounded mb-4 text-xs break-all">{debug}</div>}
           {error && <div className="bg-red-500/20 border border-red-500 text-red-300 px-4 py-2 rounded mb-4 text-sm">{error}</div>}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label className="block text-gray-300 text-sm mb-2">E-posta</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-500" required />
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white" required />
             </div>
             <div className="mb-6">
               <label className="block text-gray-300 text-sm mb-2">Sifre</label>
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-500" required />
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white" required />
             </div>
-            <button type="submit" disabled={loading} className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50">
+            <button type="submit" disabled={loading} className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-2.5 rounded-lg disabled:opacity-50">
               {loading ? 'Giris yapiliyor...' : 'Giris Yap'}
             </button>
           </form>
