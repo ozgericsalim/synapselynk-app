@@ -8,19 +8,28 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [debug, setDebug] = useState('');
+  const [debug, setDebug] = useState('init');
   const { user, profile } = useAuth();
 
   useEffect(() => {
-    if (user && !profile) {
-      setDebug('User exists but no profile. Testing fetch...');
-      supabase.from('profiles').select('*').eq('id', user.id).single()
-        .then(({ data, error: err }) => {
-          if (err) setDebug('Profile fetch error: ' + err.message + ' | code: ' + err.code);
-          else setDebug('Profile fetched OK: ' + JSON.stringify(data));
-        })
-        .catch(e => setDebug('Profile fetch exception: ' + e.message));
-    }
+    const testProfile = async () => {
+      if (user && !profile) {
+        try {
+          setDebug('Fetching profile for ' + user.id);
+          const { data, error: err } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+          if (err) {
+            setDebug('ERR: ' + err.message + ' code:' + err.code);
+          } else {
+            setDebug('OK: ' + JSON.stringify(data));
+          }
+        } catch (ex: any) {
+          setDebug('EXCEPTION: ' + ex.message);
+        }
+      } else {
+        setDebug('user=' + (user ? 'yes' : 'no') + ' profile=' + (profile ? 'yes' : 'no'));
+      }
+    };
+    testProfile();
   }, [user, profile]);
 
   if (user && profile) return <Navigate to="/" replace />;
@@ -30,9 +39,8 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      setDebug('Login OK, waiting for profile...');
+      const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+      if (err) throw err;
     } catch (err: any) {
       setError(err.message || 'Giris basarisiz');
     } finally {
@@ -47,7 +55,7 @@ export default function Login() {
         <p className="text-gray-400 text-center mb-8">Kurumsal Calisan Refahi Platformu</p>
         <div className="bg-gray-800 rounded-xl p-8 shadow-lg border border-gray-700">
           <h2 className="text-xl font-bold text-white mb-6">Giris Yap</h2>
-          {debug && <div className="bg-blue-500/20 border border-blue-500 text-blue-300 px-4 py-2 rounded mb-4 text-xs break-all">{debug}</div>}
+          <div className="bg-blue-500/20 border border-blue-500 text-blue-300 px-4 py-2 rounded mb-4 text-xs break-all">{debug}</div>
           {error && <div className="bg-red-500/20 border border-red-500 text-red-300 px-4 py-2 rounded mb-4 text-sm">{error}</div>}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
@@ -62,7 +70,6 @@ export default function Login() {
               {loading ? 'Giris yapiliyor...' : 'Giris Yap'}
             </button>
           </form>
-          <div className="mt-4 text-xs text-gray-500">User: {user ? 'yes' : 'no'} | Profile: {profile ? 'yes' : 'no'}</div>
         </div>
       </div>
     </div>
