@@ -1,42 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '../../lib/supabase';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [debug, setDebug] = useState('init');
-  const { user, profile } = useAuth();
-
-  useEffect(() => {
-    const test = async () => {
-      if (user && !profile) {
-        try {
-          setDebug('Testing raw fetch...');
-          const key = import.meta.env.VITE_SUPABASE_ANON_KEY || 'no-key';
-          const baseUrl = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-            ? window.location.origin + '/supabase'
-            : import.meta.env.VITE_SUPABASE_URL || '';
-          const url = baseUrl + '/rest/v1/profiles?select=*&id=eq.' + user.id;
-          setDebug('Fetching: ' + url);
-          const resp = await Promise.race([
-            fetch(url, { headers: { 'apikey': key, 'Authorization': 'Bearer ' + key } }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout 5s')), 5000))
-          ]) as Response;
-          const text = await resp.text();
-          setDebug('Response: ' + resp.status + ' ' + text.substring(0, 200));
-        } catch (ex: any) {
-          setDebug('FETCH ERR: ' + ex.message);
-        }
-      } else {
-        setDebug('user=' + (user ? 'yes' : 'no') + ' profile=' + (profile ? 'yes' : 'no'));
-      }
-    };
-    test();
-  }, [user, profile]);
+  const { user, profile, signIn } = useAuth();
 
   if (user && profile) return <Navigate to="/" replace />;
 
@@ -45,7 +16,7 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+      const { error: err } = await signIn(email, password);
       if (err) throw err;
     } catch (err: any) {
       setError(err.message || 'Giris basarisiz');
@@ -61,7 +32,6 @@ export default function Login() {
         <p className="text-gray-400 text-center mb-8">Kurumsal Calisan Refahi Platformu</p>
         <div className="bg-gray-800 rounded-xl p-8 shadow-lg border border-gray-700">
           <h2 className="text-xl font-bold text-white mb-6">Giris Yap</h2>
-          <div className="bg-blue-500/20 border border-blue-500 text-blue-300 px-4 py-2 rounded mb-4 text-xs break-all">{debug}</div>
           {error && <div className="bg-red-500/20 border border-red-500 text-red-300 px-4 py-2 rounded mb-4 text-sm">{error}</div>}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
