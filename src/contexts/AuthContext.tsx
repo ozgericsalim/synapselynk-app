@@ -32,21 +32,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     try {
-      console.log('fetchProfile: starting for', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
       if (error) {
-        console.error('fetchProfile: error', error.message);
         setProfile(null);
       } else {
-        console.log('fetchProfile: success', data);
         setProfile(data);
       }
     } catch (err) {
-      console.error('fetchProfile: exception', err);
       setProfile(null);
     }
   };
@@ -54,7 +50,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // Initial session check
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
       const currentUser = session?.user ?? null;
@@ -70,13 +65,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (mounted) setLoading(false);
     });
 
-    // Auth state listener - do NOT await fetchProfile to avoid blocking
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       if (currentUser) {
-        // Fire and forget - don't block the auth callback
         fetchProfile(currentUser.id);
       } else {
         setProfile(null);
