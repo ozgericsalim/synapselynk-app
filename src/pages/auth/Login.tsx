@@ -17,7 +17,7 @@ export default function Login() {
     try {
       const { error } = await signIn(email, password);
       if (error) throw error;
-      navigate('/');
+            window.location.href = '/';
     } catch (err: any) {
       setError(err.message || 'Giris basarisiz');
     } finally {
