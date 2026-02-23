@@ -1,18 +1,27 @@
-import { useAuth } from '../../contexts/AuthContext'
+import { Calendar, Users, BarChart3, AlertTriangle } from 'lucide-react';
+
 export default function ManagerDashboard() {
-  const { profile, signOut } = useAuth()
   return (
-    <div className="min-h-screen bg-dark-900 p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-white">Manager Panel</h1>
-            <p className="text-slate-400">Hosgeldiniz, {profile?.full_name}</p>
+    <div>
+      <h1 className="text-2xl font-bold mb-6">Yonetici Paneli</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {[{ label: 'Calisanlar', icon: Users, val: '0', color: 'blue' },
+          { label: 'Aktif Seanslar', icon: Calendar, val: '0', color: 'emerald' },
+          { label: 'Ort. Verimlilik', icon: BarChart3, val: '%0', color: 'purple' },
+          { label: 'Uyarilar', icon: AlertTriangle, val: '0', color: 'amber' }].map(({ label, icon: Icon, val, color }) => (
+          <div key={label} className="bg-gray-900 rounded-xl p-5 border border-gray-800">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm text-gray-400">{label}</span>
+              <Icon size={20} className="text-gray-500" />
+            </div>
+            <p className="text-3xl font-bold">{val}</p>
           </div>
-          <button onClick={signOut} className="btn-secondary">Cikis Yap</button>
-        </div>
-        <div className="card"><p className="text-slate-400">Bu panel yakin zamanda tamamlanacaktir.</p></div>
+        ))}
+      </div>
+      <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+        <h2 className="text-lg font-semibold mb-2">Hos Geldiniz</h2>
+        <p className="text-gray-400">Kurum yonetici paneliniz hazir. Sol menuden islemlerinizi yapabilirsiniz.</p>
       </div>
     </div>
-  )
+  );
 }
