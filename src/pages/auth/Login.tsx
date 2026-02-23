@@ -16,8 +16,7 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      const { error } = await signIn(email, password);
-      if (error) throw error;
+      const result = await Promise.race([signIn(email, password), new Promise((_, reject) => setTimeout(() => reject(new Error("Baglanti zaman asimina ugradi")), 10000))]); if (result.error) throw result.error;
     } catch (err: any) {
       setError(err.message || 'Giris basarisiz');
     } finally {
