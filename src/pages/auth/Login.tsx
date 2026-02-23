@@ -32,7 +32,7 @@ export default function Login() {
           <p className="text-gray-400 mt-2">Kurumsal Calisan Refahi Platformu</p>
         </div>
         <div className="bg-gray-800 rounded-lg p-8 border border-gray-700">
-          <h2 className="text-xl font-bold text-white mb-6">Giris Yap</h2><p className="text-xs text-gray-500 mb-2">URL: {import.meta.env.VITE_SUPABASE_URL || "EMPTY"}</p>
+          <h2 className="text-xl font-bold text-white mb-6">Giris Yap</h2><p className="text-xs text-gray-500 mb-2">URL: {import.meta.env.VITE_SUPABASE_URL || "EMPTY"} KEY: {(import.meta.env.VITE_SUPABASE_ANON_KEY || "EMPTY").substring(0,20)}...</p>
           {error && <div className="bg-red-500/20 border border-red-500 text-red-300 px-4 py-2 rounded mb-4">{error}</div>}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
