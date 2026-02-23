@@ -25,7 +25,7 @@ function ProtectedRoute({ children, roles }: { children: React.ReactNode; roles?
 function RoleRedirect() {
   const { profile, loading } = useAuth();
   if (loading) return <div className="min-h-screen bg-gray-950 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full"></div></div>;
-  if (!profile) return <div className="min-h-screen bg-gray-950 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full"></div></div>;
+  if (!profile) return <Navigate to="/admin" />;
   switch (profile.role) {
     case 'admin': return <Navigate to="/admin" />;
     case 'manager': return <Navigate to="/manager" />;
