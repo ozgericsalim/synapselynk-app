@@ -1,6 +1,7 @@
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Home, Users, Building2, UserCog, ClipboardList, GraduationCap, MessageSquare, Bell, Settings, LogOut, Calendar, BarChart3, Utensils, AlertTriangle } from 'lucide-react';
+import { Home, Building2, UserCog, Users, ClipboardList, GraduationCap, MessageSquare, Settings, Calendar, BarChart3, AlertTriangle, Utensils, LogOut } from 'lucide-react';
 
 const adminLinks = [
   { to: '/admin', icon: Home, label: 'Dashboard' },
@@ -44,12 +45,26 @@ const expertLinks = [
 export default function Sidebar() {
   const { profile, signOut } = useAuth();
   const location = useLocation();
-  const role = profile?.role;
+  const pathname = location.pathname;
 
-  const links = role === 'admin' ? adminLinks : role === 'manager' ? managerLinks : role === 'expert' ? expertLinks : employeeLinks;
+  // Determine links based on URL path (primary) or profile role (fallback)
+  const getLinks = () => {
+    if (pathname.startsWith('/admin')) return adminLinks;
+    if (pathname.startsWith('/manager')) return managerLinks;
+    if (pathname.startsWith('/expert')) return expertLinks;
+    if (pathname.startsWith('/employee')) return employeeLinks;
+    // fallback to profile role
+    const role = profile?.role;
+    if (role === 'admin') return adminLinks;
+    if (role === 'manager') return managerLinks;
+    if (role === 'expert') return expertLinks;
+    return employeeLinks;
+  };
+
+  const links = getLinks();
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-gray-900 border-r border-gray-800 flex flex-col z-50 transition-transform lg:translate-x-0">
+    <aside className="fixed left-0 top-0 h-full w-64 bg-gray-900 text-white flex flex-col z-50 transition-transform lg:translate-x-0">
       <div className="p-4 border-b border-gray-800">
         <h1 className="text-xl font-bold">
           <span className="text-white">Synapse</span>
@@ -57,27 +72,40 @@ export default function Sidebar() {
         </h1>
         <p className="text-xs text-gray-400 mt-1">Kurumsal Calisan Refahi</p>
       </div>
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {links.map(({ to, icon: Icon, label }) => (
-          <Link key={to} to={to} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${location.pathname === to ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}>
-            <Icon size={18} />
-            <span>{label}</span>
-          </Link>
-        ))}
+
+      <nav className="flex-1 p-4 space-y-1">
+        {links.map((link) => {
+          const Icon = link.icon;
+          const isActive = pathname === link.to || (link.to !== '/' && link.to !== '/admin' && link.to !== '/manager' && link.to !== '/employee' && link.to !== '/expert' && pathname.startsWith(link.to));
+          return (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={"flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors " + (isActive ? 'bg-emerald-600 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white')}
+            >
+              <Icon size={18} />
+              {link.label}
+            </Link>
+          );
+        })}
       </nav>
-      <div className="p-3 border-t border-gray-800">
-        <div className="flex items-center gap-3 px-3 py-2 mb-2">
-          <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-sm font-bold">
+
+      <div className="p-4 border-t border-gray-800">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-sm font-bold">
             {profile?.full_name?.charAt(0) || 'U'}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm text-white truncate">{profile?.full_name}</p>
-            <p className="text-xs text-gray-500 truncate">{profile?.email}</p>
+            <p className="text-sm font-medium truncate">{profile?.full_name || 'Kullanici'}</p>
+            <p className="text-xs text-gray-400 truncate">{profile?.role || ''}</p>
           </div>
         </div>
-        <button onClick={signOut} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-gray-800 hover:text-red-400 w-full transition-colors">
-          <LogOut size={18} />
-          <span>Cikis Yap</span>
+        <button
+          onClick={() => signOut()}
+          className="flex items-center gap-2 text-gray-400 hover:text-white text-sm w-full px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+        >
+          <LogOut size={16} />
+          Cikis Yap
         </button>
       </div>
     </aside>

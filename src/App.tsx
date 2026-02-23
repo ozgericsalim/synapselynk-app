@@ -8,6 +8,7 @@ import AdminUsers from './pages/admin/Users';
 import AdminExperts from './pages/admin/Experts';
 import AdminTests from './pages/admin/Tests';
 import AdminTrainings from './pages/admin/Trainings';
+import AdminSettings from './pages/admin/Settings';
 import ManagerDashboard from './pages/manager/Dashboard';
 import EmployeeDashboard from './pages/employee/Dashboard';
 import ExpertDashboard from './pages/expert/Dashboard';
@@ -48,6 +49,7 @@ export default function App() {
             <Route path="tests" element={<AdminTests />} />
             <Route path="trainings" element={<AdminTrainings />} />
             <Route path="messages" element={<Messages />} />
+            <Route path="settings" element={<AdminSettings />} />
           </Route>
           <Route path="/manager" element={<ProtectedRoute roles={['manager']}><Layout /></ProtectedRoute>}>
             <Route index element={<ManagerDashboard />} />
