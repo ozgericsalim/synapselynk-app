@@ -21,10 +21,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
-    if (data) setProfile(data as Profile);
-  };
+    const fetchProfile = async (userId: string) => {
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+      if (error) console.error('Profile fetch error:', error);
+      if (data) setProfile(data as Profile);
+    };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {

@@ -8,7 +8,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       <Sidebar />
-      <div className="lg:ml-64">
+      <div className="ml-64">
         <header className="sticky top-0 z-40 bg-gray-950/80 backdrop-blur-sm border-b border-gray-800 px-6 py-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Hos geldiniz, {profile?.full_name}</h2>
           <button className="relative p-2 rounded-lg hover:bg-gray-800 transition-colors">

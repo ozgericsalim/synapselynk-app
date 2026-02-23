@@ -64,7 +64,7 @@ export default function Sidebar() {
   const links = getLinks();
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-gray-900 text-white flex flex-col z-50 transition-transform lg:translate-x-0">
+    <aside className="fixed left-0 top-0 h-full w-64 bg-gray-900 text-white flex flex-col z-50 ">
       <div className="p-4 border-b border-gray-800">
         <h1 className="text-xl font-bold">
           <span className="text-white">Synapse</span>
