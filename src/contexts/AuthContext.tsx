@@ -22,6 +22,7 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
+
 export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -31,15 +32,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+      console.log('fetchProfile: starting for', userId);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
       if (error) {
-        console.error('Profile fetch error:', error.message);
+        console.error('fetchProfile: error', error.message);
         setProfile(null);
       } else {
+        console.log('fetchProfile: success', data);
         setProfile(data);
       }
     } catch (err) {
-      console.error('Profile fetch exception:', err);
+      console.error('fetchProfile: exception', err);
       setProfile(null);
     }
   };
@@ -47,24 +54,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    // Initial session check
+    supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       if (currentUser) {
-        await fetchProfile(currentUser.id);
+        fetchProfile(currentUser.id).finally(() => {
+          if (mounted) setLoading(false);
+        });
+      } else {
+        setLoading(false);
       }
-      setLoading(false);
     }).catch(() => {
       if (mounted) setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    // Auth state listener - do NOT await fetchProfile to avoid blocking
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       if (currentUser) {
-        await fetchProfile(currentUser.id);
+        // Fire and forget - don't block the auth callback
+        fetchProfile(currentUser.id);
       } else {
         setProfile(null);
       }
